@@ -15,6 +15,7 @@ class DisplayWindow extends JFrame{
 		displayLabel=new JLabel("0");
 		displayLabel.setFont(new Font("",1,25));
 		add(displayLabel);
+		setVisible(true);
 	}
 	public void displayWaterLevel(int waterLevel){
 		displayLabel.setText(waterLevel+""); //Integer.toString(waterLevel)
@@ -32,6 +33,7 @@ class AlarmWindow extends JFrame{
 		alarmLabel=new JLabel("OFF");
 		alarmLabel.setFont(new Font("",1,25));
 		add(alarmLabel);
+		setVisible(true);
 	}
 	public void operateAlarm(int waterLevel){
 		alarmLabel.setText(waterLevel>=50 ? "ON":"OFF");
@@ -49,6 +51,7 @@ class SplitterWindow extends JFrame{
 		splitterLabel=new JLabel("OFF");
 		splitterLabel.setFont(new Font("",1,25));
 		add(splitterLabel);
+		setVisible(true);
 	}
 	public void split(int waterLevel){
 		splitterLabel.setText(waterLevel>=75 ? "Splitter ON":"Splitter OFF");
@@ -66,16 +69,8 @@ class WaterTankWindow extends JFrame{
 		setTitle("WaterTank Window");
 		setLocationRelativeTo(null);
 		setLayout(new FlowLayout());
-		//-----------------------------------------
-		alarmWindow=new AlarmWindow();
-		alarmWindow.setVisible(true);
+
 		
-		displayWindow=new DisplayWindow();
-		displayWindow.setVisible(true);
-		
-		splitterWindow=new SplitterWindow();
-		splitterWindow.setVisible(true);
-		//-----------------------------------------
 		waterLevelSlider=new JSlider(JSlider.VERTICAL,0,100,50);
 		waterLevelSlider.setFont(new Font("",1,25));
 		waterLevelSlider.addChangeListener(new ChangeListener() {
@@ -88,10 +83,23 @@ class WaterTankWindow extends JFrame{
 		});
 		add(waterLevelSlider);
 	}
+	public void addAlarmWindow(AlarmWindow alarmWindow){
+		this.alarmWindow=alarmWindow;
+	}
+	public void addSplitterWindow(SplitterWindow splitterWindow){
+		this.splitterWindow=splitterWindow;
+	}
+	public void addDisplayWindow(DisplayWindow displayWindow){
+		this.displayWindow=displayWindow;
+	}
 }
 
 class Indicator{ 
 	public static void main(String args[]){   
-		new WaterTankWindow().setVisible(true);
+		WaterTankWindow wt = new WaterTankWindow();
+		wt.addAlarmWindow(new AlarmWindow());
+		wt.addDisplayWindow(new DisplayWindow());
+		wt.addSplitterWindow(new SplitterWindow());
+		wt.setVisible(true);
 	} 
 }
