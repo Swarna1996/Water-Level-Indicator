@@ -58,31 +58,37 @@ class SplitterWindow extends JFrame{
 	}
 }
 class WaterTankWindow extends JFrame{
-	private AlarmWindow alarmWindow;
-	private DisplayWindow displayWindow;
-	private SplitterWindow splitterWindow;
+	private WaterTankController waterTankController;
 	
 	private JSlider waterLevelSlider;
-	WaterTankWindow(){
+	WaterTankWindow(WaterTankController waterTankController){
 		setSize(300,300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setTitle("WaterTank Window");
 		setLocationRelativeTo(null);
 		setLayout(new FlowLayout());
 
+		this.waterTankController=waterTankController;
 		
 		waterLevelSlider=new JSlider(JSlider.VERTICAL,0,100,50);
 		waterLevelSlider.setFont(new Font("",1,25));
 		waterLevelSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent ce) {
 				int waterLevel=waterLevelSlider.getValue();
-				alarmWindow.operateAlarm(waterLevel);
-				displayWindow.displayWaterLevel(waterLevel);
-				splitterWindow.split(waterLevel); 
+				waterTankController.setWaterLevel(waterLevel);
 			}
 		});
 		add(waterLevelSlider);
 	}
+}
+
+class WaterTankController{
+	private AlarmWindow alarmWindow;
+	private DisplayWindow displayWindow;
+	private SplitterWindow splitterWindow;
+	
+	private int waterLevel;
+	
 	public void addAlarmWindow(AlarmWindow alarmWindow){
 		this.alarmWindow=alarmWindow;
 	}
@@ -92,14 +98,22 @@ class WaterTankWindow extends JFrame{
 	public void addDisplayWindow(DisplayWindow displayWindow){
 		this.displayWindow=displayWindow;
 	}
+	public void setWaterLevel(int waterLevel){
+		if(this.waterLevel!=waterLevel){
+			alarmWindow.operateAlarm(waterLevel);
+			displayWindow.displayWaterLevel(waterLevel);
+			splitterWindow.split(waterLevel); 
+		}
+	}
 }
 
 class Indicator{ 
 	public static void main(String args[]){   
-		WaterTankWindow wt = new WaterTankWindow();
-		wt.addAlarmWindow(new AlarmWindow());
-		wt.addDisplayWindow(new DisplayWindow());
-		wt.addSplitterWindow(new SplitterWindow());
-		wt.setVisible(true);
+		WaterTankController waterTankController = new WaterTankController();
+		waterTankController.addAlarmWindow(new AlarmWindow());
+		waterTankController.addSplitterWindow(new SplitterWindow());
+		waterTankController.addDisplayWindow(new DisplayWindow());
+		
+		new WaterTankWindow(waterTankController).setVisible(true);
 	} 
 }
