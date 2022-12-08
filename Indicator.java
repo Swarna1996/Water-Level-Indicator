@@ -57,6 +57,26 @@ class SplitterWindow extends JFrame{
 		splitterLabel.setText(waterLevel>=75 ? "Splitter ON":"Splitter OFF");
 	}
 }
+
+class SMSWindow extends JFrame{
+	private JLabel SMSLabel;
+	SMSWindow(){
+		setSize(300,300);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setTitle("SMS Window");
+		setLocationRelativeTo(null);
+		setLayout(new FlowLayout());
+		//-----------------------------------------
+		SMSLabel=new JLabel("OFF");
+		SMSLabel.setFont(new Font("",1,25));
+		add(SMSLabel);
+		setVisible(true);
+	}
+	public void sentSMS(int waterLevel){
+		SMSLabel.setText("Sending SMS : "+waterLevel);
+	}
+}
+
 class WaterTankWindow extends JFrame{
 	private WaterTankController waterTankController;
 	
@@ -86,6 +106,7 @@ class WaterTankController{
 	private AlarmWindow alarmWindow;
 	private DisplayWindow displayWindow;
 	private SplitterWindow splitterWindow;
+	private SMSWindow smsWindow;
 	
 	private int waterLevel;
 	
@@ -98,11 +119,15 @@ class WaterTankController{
 	public void addDisplayWindow(DisplayWindow displayWindow){
 		this.displayWindow=displayWindow;
 	}
+	public void addSMSWindow(SMSWindow smsWindow){
+		this.smsWindow=smsWindow;
+	}
 	public void setWaterLevel(int waterLevel){
 		if(this.waterLevel!=waterLevel){
 			alarmWindow.operateAlarm(waterLevel);
 			displayWindow.displayWaterLevel(waterLevel);
 			splitterWindow.split(waterLevel); 
+			smsWindow.sentSMS(waterLevel);
 		}
 	}
 }
@@ -113,6 +138,7 @@ class Indicator{
 		waterTankController.addAlarmWindow(new AlarmWindow());
 		waterTankController.addSplitterWindow(new SplitterWindow());
 		waterTankController.addDisplayWindow(new DisplayWindow());
+		waterTankController.addSMSWindow(new SMSWindow());
 		
 		new WaterTankWindow(waterTankController).setVisible(true);
 	} 
