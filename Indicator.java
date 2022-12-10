@@ -3,7 +3,11 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 
-class DisplayWindow extends JFrame{
+interface WaterLevelObserver {
+	public void update(int waterLevel);
+}
+
+class DisplayWindow extends JFrame implements WaterLevelObserver{
 	private JLabel displayLabel;
 	DisplayWindow(){
 		setSize(300,300);
@@ -17,11 +21,11 @@ class DisplayWindow extends JFrame{
 		add(displayLabel);
 		setVisible(true);
 	}
-	public void displayWaterLevel(int waterLevel){
+	public void update(int waterLevel){
 		displayLabel.setText(waterLevel+""); //Integer.toString(waterLevel)
 	}
 }
-class AlarmWindow extends JFrame{
+class AlarmWindow extends JFrame implements WaterLevelObserver{
 	private JLabel alarmLabel;
 	AlarmWindow(){
 		setSize(300,300);
@@ -35,11 +39,11 @@ class AlarmWindow extends JFrame{
 		add(alarmLabel);
 		setVisible(true);
 	}
-	public void operateAlarm(int waterLevel){
+	public void update(int waterLevel){
 		alarmLabel.setText(waterLevel>=50 ? "ON":"OFF");
 	}
 }
-class SplitterWindow extends JFrame{
+class SplitterWindow extends JFrame implements WaterLevelObserver{
 	private JLabel splitterLabel;
 	SplitterWindow(){
 		setSize(300,300);
@@ -53,12 +57,12 @@ class SplitterWindow extends JFrame{
 		add(splitterLabel);
 		setVisible(true);
 	}
-	public void split(int waterLevel){
+	public void update(int waterLevel){
 		splitterLabel.setText(waterLevel>=75 ? "Splitter ON":"Splitter OFF");
 	}
 }
 
-class SMSWindow extends JFrame{
+class SMSWindow extends JFrame implements WaterLevelObserver{
 	private JLabel SMSLabel;
 	SMSWindow(){
 		setSize(300,300);
@@ -72,7 +76,7 @@ class SMSWindow extends JFrame{
 		add(SMSLabel);
 		setVisible(true);
 	}
-	public void sentSMS(int waterLevel){
+	public void update(int waterLevel){
 		SMSLabel.setText("Sending SMS : "+waterLevel);
 	}
 }
@@ -103,31 +107,28 @@ class WaterTankWindow extends JFrame{
 }
 
 class WaterTankController{
-	private AlarmWindow alarmWindow;
-	private DisplayWindow displayWindow;
-	private SplitterWindow splitterWindow;
-	private SMSWindow smsWindow;
+	private WaterLevelObserver[] observerArray =new WaterLevelObserver[0];
 	
 	private int waterLevel;
 	
-	public void addAlarmWindow(AlarmWindow alarmWindow){
-		this.alarmWindow=alarmWindow;
+	public void addWaterLevelObserver(WaterLevelObserver waterLevelObserver){
+		WaterLevelObserver[] temp= new WaterLevelObserver [observerArray.length+1];
+		for (int i = 0; i < observerArray.length; i++){
+			temp[i]=observerArray[i];
+		}
+		temp[observerArray.length]=waterLevelObserver;
+		observerArray=temp;
 	}
-	public void addSplitterWindow(SplitterWindow splitterWindow){
-		this.splitterWindow=splitterWindow;
-	}
-	public void addDisplayWindow(DisplayWindow displayWindow){
-		this.displayWindow=displayWindow;
-	}
-	public void addSMSWindow(SMSWindow smsWindow){
-		this.smsWindow=smsWindow;
-	}
+	
 	public void setWaterLevel(int waterLevel){
 		if(this.waterLevel!=waterLevel){
-			alarmWindow.operateAlarm(waterLevel);
-			displayWindow.displayWaterLevel(waterLevel);
-			splitterWindow.split(waterLevel); 
-			smsWindow.sentSMS(waterLevel);
+			this.waterLevel=waterLevel;
+			notifyObservers();
+		}
+	}
+	public void notifyObservers(){
+		for(WaterLevelObserver ob : observerArray){
+			ob.update(waterLevel);
 		}
 	}
 }
@@ -135,10 +136,10 @@ class WaterTankController{
 class Indicator{ 
 	public static void main(String args[]){   
 		WaterTankController waterTankController = new WaterTankController();
-		waterTankController.addAlarmWindow(new AlarmWindow());
-		waterTankController.addSplitterWindow(new SplitterWindow());
-		waterTankController.addDisplayWindow(new DisplayWindow());
-		waterTankController.addSMSWindow(new SMSWindow());
+		waterTankController.addWaterLevelObserver(new AlarmWindow());
+		waterTankController.addWaterLevelObserver(new SplitterWindow());
+		waterTankController.addWaterLevelObserver(new DisplayWindow());
+		waterTankController.addWaterLevelObserver(new SMSWindow());
 		
 		new WaterTankWindow(waterTankController).setVisible(true);
 	} 
